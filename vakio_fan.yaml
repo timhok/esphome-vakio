@@ -1,0 +1,129 @@
+substitutions:
+  # Name
+  device_name: vakio_fan
+  friendly_name: "Vakio Fan"
+
+  # Hardware
+  board: d1_mini
+  pin_led_blue: D4
+  pin_led_ir: D2
+
+  # Wifi credentials
+  wifi_ssid: !secret wifi_ssid
+  wifi_password: !secret wifi_password
+
+  # OTA and API
+  ota_password: !secret esphome_password
+  api_password: !secret esphome_password
+  
+  # IR codes
+  power: "0x00FF00FF"
+  speed_inc: "0x00FFA05F"
+  speed_dec: "0x00FF906F"
+  mode_in: "0x00FF30CF"
+  mode_out: "0x00FF708F"
+  mode_recuperation: "0x00FFB04F"
+  mode_winter: "0x00FF807F"
+  mode_night: "0x00FF40BF"
+  nbits: "32"
+
+esphome:
+  name: $device_name
+  platform: ESP8266
+  board: $board
+
+wifi:
+  ssid: $wifi_ssid
+  password: $wifi_password
+  fast_connect: on
+
+logger:
+
+ota:
+  password: $ota_password
+
+api:
+  password: $api_password
+  reboot_timeout: 0s
+
+status_led:
+  pin: $pin_led_blue
+
+remote_transmitter:
+  pin: 
+    number: $pin_led_ir
+  carrier_duty_percent: 50%
+
+
+switch:
+  - platform: template
+    name: "${friendly_name} Increase speed"
+    icon: "mdi:fan-plus"
+    id: "${device_name}_speed_inc"
+    turn_on_action:
+      - remote_transmitter.transmit_lg:
+          data: $speed_inc
+          nbits: $nbits
+
+  - platform: template
+    name: "${friendly_name} Decrease speed"
+    icon: "mdi:fan-minus"
+    id: "${device_name}_speed_dec"
+    turn_on_action:
+      - remote_transmitter.transmit_lg:
+          data: $speed_dec
+          nbits: $nbits
+
+  - platform: template
+    name: "${friendly_name} Power"
+    icon: "mdi:power"
+    id: "${device_name}_power"
+    turn_on_action:
+      - remote_transmitter.transmit_lg:
+          data: $power
+          nbits: $nbits
+
+  - platform: template
+    name: "${friendly_name} Intake mode"
+    icon: "mdi:home-import-outline"
+    id: "${device_name}_mode_in"
+    turn_on_action:
+      - remote_transmitter.transmit_lg:
+          data: $mode_in
+          nbits: $nbits
+
+  - platform: template
+    name: "${friendly_name} Exhaust mode"
+    icon: "mdi:home-export-outline"
+    id: "${device_name}_mode_out"
+    turn_on_action:
+      - remote_transmitter.transmit_lg:
+          data: $mode_out
+          nbits: $nbits
+
+  - platform: template
+    name: "${friendly_name} Recuperation mode"
+    icon: "mdi:rotate-3d-variant"
+    id: "${device_name}_mode_recuperation"
+    turn_on_action:
+      - remote_transmitter.transmit_lg:
+          data: $mode_recuperation
+          nbits: $nbits
+
+  - platform: template
+    name: "${friendly_name} Winter mode"
+    icon: "mdi:snowflake"
+    id: "${device_name}_mode_winter"
+    turn_on_action:
+      - remote_transmitter.transmit_lg:
+          data: $mode_winter
+          nbits: $nbits
+
+  - platform: template
+    name: "${friendly_name} Night mode"
+    icon: "mdi:weather-night"
+    id: "${device_name}_mode_night"
+    turn_on_action:
+      - remote_transmitter.transmit_lg:
+          data: $mode_night
+          nbits: $nbits
